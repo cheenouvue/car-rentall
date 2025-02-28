@@ -1,14 +1,14 @@
 import prisma from '../config/config.js';
 import { validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
-import { sendCreated } from '../service/reponseHandler.js';
+import { sendCreated, sendValidator } from '../service/reponseHandler.js';
 import { generateAccessToken, generateRefreshToken } from '../service/tokenService.js';
 
 //Register
 export const register = async (req, res) => {
     const error = validationResult(req);
     if (!error.isEmpty()) {
-        return res.status(400).json({ errors: error.array() });
+        return sendValidator(res, error);
     }
 
     try {
@@ -18,7 +18,8 @@ export const register = async (req, res) => {
             return res.status(400).json({ message: 'your email is exsited' });
         }
 
-        const passwordhash = await bcrypt.hash(password, 10);
+        const salt = await bcrypt.genSalt(10);
+        const passwordhash = await bcrypt.hash(password, salt);
 
         const newUser = await prisma.users.create({ data: { firstName, lastName, email, password: passwordhash } });
         sendCreated(res, 'create user successfully', newUser);
@@ -31,7 +32,7 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
     const error = validationResult(req);
     if (!error.isEmpty()) {
-        return res.status(400).json({ errors: error.array() });
+        return sendValidator(res, error);
     };
     try {
         const { email, password } = req.body;
@@ -46,8 +47,8 @@ export const login = async (req, res) => {
             return res.status(400).json({ message: 'your password is not true' });
         };
 
-        const accessToken = generateAccessToken(user);
-        const refreshToken = generateRefreshToken(user.id);
+        const accessToken = generateAccessToken(user.id, user.role);
+        const refreshToken = generateRefreshToken(user.id, user.role);
 
         res.cookie('accessToken', accessToken, { httpOnly: true });
         res.cookie('refreshToken', refreshToken, { httpOnly: true });

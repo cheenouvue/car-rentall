@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import router from './routers/index.js';
+import fileUpload from 'express-fileupload';
 
 dotenv.config();
 
@@ -12,8 +13,9 @@ const PORT = process.env.PORT;
 app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
+app.use(fileUpload());
 
-app.use('/api/v1.0', router);
+app.use('/api', router);
 
 app.listen(PORT, () => {
     console.log(`server run in port ${PORT}`);
