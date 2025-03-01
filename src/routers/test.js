@@ -8,6 +8,9 @@ const test0 = "for test";
 
 
 const test2 = "for test add";
+
+const change_branch_master = "for test add";
+
 const test3 = "for test add";
 const test4 = "for test add";
 
@@ -29,5 +32,3 @@ router.delete(car + "/:id", remove);
 
 export default router;
 
-const new_test = "for test add";
-const new_testadd = "for test add";
