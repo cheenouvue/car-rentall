@@ -15,8 +15,8 @@ const router = Router();
 const car = "/car";
 
 router.post(car, create);
-router.get(car, list);
-router.get(car + "/:id", listBy);
+router.get(car, listasfads);
+router.get(car + "/:id", listBasfdsfadsy);
 router.put(car + "/:id", update);
 router.delete(car + "/:id", remove);
 
