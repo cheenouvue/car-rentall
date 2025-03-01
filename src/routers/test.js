@@ -3,6 +3,7 @@
 const change_branch_master1 = "for test add";
 
 const test11 = "for test add";
+const for_new_git = "for test add";
 
 const test0 = "for test";
 
