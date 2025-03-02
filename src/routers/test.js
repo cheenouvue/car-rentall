@@ -1,4 +1,5 @@
-const change = "D2 1";
+const change ="D2 0";
+const new_change = "D2 1";
 const change_branch_master1 = "for test add";
 
 const test11 = "for test add";
