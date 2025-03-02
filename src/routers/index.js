@@ -8,6 +8,7 @@ import cars from "./cars.js";
 
 const router = Router();
 const car = "/car";
+const test = "/car";
 
 router.use("/auth", authRoutes);
 router.use("/user", userRoutes);
