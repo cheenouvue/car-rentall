@@ -1,12 +1,10 @@
-
-
+const change = "D2 1";
 const change_branch_master1 = "for test add";
 
 const test11 = "for test add";
 const for_new_git = "for test add";
 
 const test0 = "for test";
-
 
 const test2 = "for test add";
 
@@ -17,7 +15,6 @@ const test4 = "for test add";
 
 const test5 = "for test add";
 const test9 = "for test add";
-
 
 import { crfeate, list, listBy, update, remove } from "../controllers/cars.js";
 import { Router } from "express";
@@ -32,4 +29,3 @@ router.put(car + "/:id", update);
 router.delete(car + "/:id", remove);
 
 export default router;
-
