@@ -5,6 +5,7 @@ import { sendError, sendSuccess } from "../service/reponseHandler.js";
 export const create = async (req, res) => {
   try {
     const { name, icon } = req.body;
+    console.log(name);
     const bank = await prisma.bank.create({
       data: {
         name: name,
@@ -21,6 +22,7 @@ export const create = async (req, res) => {
 // list
 export const list = async (req, res) => {
   try {
+    console.log("*************************************************");
     const bank = await prisma.bank.findMany();
     sendSuccess(res, "Success list", bank);
   } catch (erro) {
