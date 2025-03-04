@@ -27,6 +27,32 @@ model Users {
   updateAt  DateTime @updatedAt
 }
 
+model Employees {
+  id            String      @id @default(uuid())
+  dept_id       String
+  firstName     String
+  lastName      String
+  email         String      @unique
+  phone         String         @unique
+  village       String
+  distrit       String
+  provinced     String
+  natinalIdCard String      @unique
+  salary        Float
+  birthday      DateTime
+  createAt      DateTime    @default(now())
+  updateAt      DateTime    @updatedAt
+  department    Departments @relation(fields: [dept_id], references: [id])
+}
+
+model Departments {
+  id          String      @id @default(uuid())
+  deptName    String      @unique
+  pricePerDay String?
+  createAt    DateTime    @default(now())
+  updateAt    DateTime    @updatedAt
+  Employees   Employees[]
+}
 // enum
 // enum users
 enum Role {

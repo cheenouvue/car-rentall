@@ -1,5 +1,8 @@
 import jwt from 'jsonwebtoken';
 import { generateAccessToken } from '../service/tokenService.js';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 export const authCheckToken = (req, res, next) => {
     const token = req.cookies.accessToken;
@@ -30,4 +33,14 @@ export const refreshAccessToken = (req, res) => {
         res.cookie('accessToken', newAccessToken, { httpOnly: true });
         res.status(200).json({ message: 'refreshToken successfully', newAccessToken });
     });
+}
+
+//check roles
+export const authorizeRole = (roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
+            return res.status(400).json({ message: "Forbidden: You don't have permission" })
+        }
+        next();
+    }
 }
