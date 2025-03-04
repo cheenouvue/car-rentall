@@ -1,8 +1,5 @@
 import jwt from 'jsonwebtoken';
 import { generateAccessToken } from '../service/tokenService.js';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
 
 export const authCheckToken = (req, res, next) => {
     const token = req.cookies.accessToken;

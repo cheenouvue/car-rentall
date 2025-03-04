@@ -14,7 +14,7 @@ const PORT = process.env.PORT;
 app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
-app.use(express.fileUpload());
+app.use(fileUpload());
 
 const uploadDir = path.join(process.cwd(), 'uploads')
 
