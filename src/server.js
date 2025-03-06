@@ -5,7 +5,6 @@ import cookieParser from "cookie-parser";
 import router from "./routers/index.js";
 import fileUpload from "express-fileupload";
 import path from "path";
-
 import fs from "fs";
 
 dotenv.config();

@@ -21,6 +21,8 @@ model Users {
   email     String   @unique
   password  String
   profile   String?
+  car       Rental[]
+  review    Review[]
   statu     Statu    @default(normal)
   role      Role     @default(user)
   createAt  DateTime @default(now())
@@ -45,6 +47,7 @@ model Employees {
   createAt      DateTime    @default(now())
   updateAt      DateTime    @updatedAt
   department    Departments @relation(fields: [dept_id], references: [id])
+  rental        Rental[]
 }
 
 model Departments {
@@ -70,27 +73,7 @@ enum Statu {
 }
 
 model CarType {
-  car_type_id String   @id @default(uuid())
-  name        String
-  icon        String
-  car         Car[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-// Table Insurance
-model Insurance {
-  insurance_id String   @id @default(uuid())
-  name         String
-  icon         String
-  car          Car[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-}
-
-// Table Bank
-model Bank {
-  bank_id   String   @id @default(uuid())
+  id        String   @id @default(uuid())
   name      String
   icon      String
   car       Car[]
@@ -98,9 +81,30 @@ model Bank {
   updatedAt DateTime @updatedAt
 }
 
+// Table Insurance
+model Insurance {
+  id        String   @id @default(uuid())
+  name      String
+  icon      String
+  car       Car[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Table Bank
+model Bank {
+  id        String   @id @default(uuid())
+  name      String
+  icon      String
+  image     String
+  rental    Rental[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // Table Car
 model Car {
-  car_id       String    @id @default(uuid())
+  id           String    @id @default(uuid())
   name         String
   image        String
   year         String
@@ -113,12 +117,84 @@ model Car {
   color        String
   status       String
   price        Float
-  carType      CarType   @relation(fields: [carTypeId], references: [car_type_id], onDelete: Cascade)
+  carType      CarType   @relation(fields: [carTypeId], references: [id])
   carTypeId    String
-  insurance    Insurance @relation(fields: [insuranceId], references: [insurance_id], onDelete: Cascade)
+  insurance    Insurance @relation(fields: [insuranceId], references: [id])
   insuranceId  String
-  bank         Bank      @relation(fields: [bankId], references: [bank_id], onDelete: Cascade)
-  bankId       String
+  rental       Rental[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+}
+
+model Review {
+  id          String   @id @default(uuid())
+  commen      String
+  car_point   Int
+  emply_point Int
+  rentalId    String   @unique
+  rental      Rental   @relation(fields: [rentalId], references: [id], onDelete: Cascade)
+  usersId     String
+  users       Users    @relation(fields: [usersId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model plyment {
+  id        String   @id @default(uuid())
+  price     Float
+  image     String
+  rentalId  String   @unique
+  rental    Rental   @relation(fields: [rentalId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Penalty {
+  id        String   @id @default(uuid())
+  image     String
+  detail    String
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  repairId  String   @unique
+  repair    Repair   @relation(fields: [repairId], references: [id])
+}
+
+model Repair {
+  id          String   @id @default(uuid())
+  image       String
+  pay         Float
+  price_total Float
+  //rental_id
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  penalty     Penalty?
+}
+
+model Rental {
+  id String @id @default(uuid())
+  // promotion_id   String   @unique
+  // status_id      String   @unique
+  // coupon_id      String   @unique
+
+  first_name    String
+  last_name     String
+  phone         Int
+  passport      String
+  identity_card String
+  booking_pay   Float
+  pay_image     String
+  usersId       String
+  carId         String
+  employeesId   String
+  bankId        String
+  users         Users     @relation(fields: [usersId], references: [id])
+  car           Car       @relation(fields: [carId], references: [id])
+  bank          Bank      @relation(fields: [bankId], references: [id])
+  Employees     Employees @relation(fields: [employeesId], references: [id])
+  review        Review?   @relation
+  plyment       plyment?  @relation
+
+  creatDat  DateTime @default(now())
+  updateDat DateTime @updatedAt
 }

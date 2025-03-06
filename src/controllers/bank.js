@@ -1,28 +1,34 @@
 import prisma from "../config/config.js";
 import { sendError, sendSuccess } from "../service/reponseHandler.js";
-
-// create
+import { uploadFile } from "../service/uploadService.js";
+import fs from "fs";
+import path from "path";
 export const create = async (req, res) => {
   try {
-    const { name, icon } = req.body;
-    console.log(name);
+    const { name } = req.body;
+    const icon = req.files?.icon;
+    const image = req.files?.image;
+    const iconFilename = icon ? await uploadFile(icon) : null;
+    const imageFilename = image ? await uploadFile(image) : null;
+
     const bank = await prisma.bank.create({
       data: {
         name: name,
-        icon: icon,
+        icon: iconFilename,
+        image: imageFilename,
       },
     });
-    sendSuccess(res, "Success Create", bank);
-  } catch (erro) {
-    console.log(erro);
-    sendError(res, "Create insurance Error");
+
+    sendSuccess(res, "Successfully created bank entry", bank);
+  } catch (error) {
+    console.error(error);
+    sendError(res, "Error creating bank entry");
   }
 };
 
 // list
 export const list = async (req, res) => {
   try {
-    console.log("*************************************************");
     const bank = await prisma.bank.findMany();
     sendSuccess(res, "Success list", bank);
   } catch (erro) {
@@ -37,7 +43,7 @@ export const listID = async (req, res) => {
     const { id } = req.params;
     const bank = await prisma.bank.findUnique({
       where: {
-        bank_id: id,
+        id: id,
       },
     });
     sendSuccess(res, "Success", bank);

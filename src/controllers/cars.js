@@ -19,7 +19,6 @@ export const create = async (req, res) => {
       price,
       carTypeId,
       insuranceId,
-      bankId,
     } = req.body;
     const car = await prisma.car.create({
       data: {
@@ -37,7 +36,6 @@ export const create = async (req, res) => {
         price: price,
         carTypeId: carTypeId,
         insuranceId: insuranceId,
-        bankId: bankId,
       },
     });
     sendSuccess(res, "Success", car);
@@ -151,7 +149,6 @@ export const update = async (req, res) => {
       price,
       carTypeId,
       insuranceId,
-      bankId,
     } = req.body;
     const car = await prisma.car.update({
       where: {
@@ -172,7 +169,6 @@ export const update = async (req, res) => {
         price: price,
         carTypeId: carTypeId,
         insuranceId: insuranceId,
-        bankId: bankId,
       },
     });
     sendSuccess(res, "Success", car);
