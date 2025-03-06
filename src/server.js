@@ -1,10 +1,12 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import cookieParser from 'cookie-parser';
-import router from './routers/index.js';
-import fileUpload from 'express-fileupload';
-import path from 'path';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+import router from "./routers/index.js";
+import fileUpload from "express-fileupload";
+import path from "path";
+
+import fs from "fs";
 
 dotenv.config();
 
@@ -16,12 +18,12 @@ app.use(cors());
 app.use(cookieParser());
 app.use(fileUpload());
 
-const uploadDir = path.join(process.cwd(), 'uploads')
+const uploadDir = path.join(process.cwd(), "uploads");
 
-app.use('/uploads', express.static(uploadDir));
+app.use("/uploads", express.static(uploadDir));
 
-app.use('/api', router);
+app.use("/api", router);
 
 app.listen(PORT, () => {
-    console.log(`server run in port ${PORT}`);
+  console.log(`server run in port ${PORT}`);
 });

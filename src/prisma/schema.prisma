@@ -28,12 +28,14 @@ model Users {
 }
 
 model Employees {
-  id            String      @id @default(uuid())
-  dept_id       String
-  firstName     String
-  lastName      String
-  email         String      @unique
-  phone         String         @unique
+  id        String @id @default(uuid())
+  dept_id   String
+  firstName String
+  lastName  String
+  email     String @unique
+
+  phone Int @unique
+
   village       String
   distrit       String
   provinced     String
@@ -53,6 +55,7 @@ model Departments {
   updateAt    DateTime    @updatedAt
   Employees   Employees[]
 }
+
 // enum
 // enum users
 enum Role {
@@ -110,12 +113,12 @@ model Car {
   color        String
   status       String
   price        Float
-  carType      CarType   @relation(fields: [carTypeId], references: [car_type_id],onDelete: Cascade)
+  carType      CarType   @relation(fields: [carTypeId], references: [car_type_id], onDelete: Cascade)
   carTypeId    String
-  insurance    Insurance @relation(fields: [insuranceId], references: [insurance_id],onDelete: Cascade)
+  insurance    Insurance @relation(fields: [insuranceId], references: [insurance_id], onDelete: Cascade)
   insuranceId  String
-  bank         Bank      @relation(fields: [bankId], references: [bank_id],onDelete: Cascade)
-  bankId      String
+  bank         Bank      @relation(fields: [bankId], references: [bank_id], onDelete: Cascade)
+  bankId       String
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
