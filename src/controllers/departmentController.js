@@ -36,8 +36,9 @@ export const updateDepartment = async (req, res) => {
         return sendValidator(res, error);
     }
     try {
-        const { deptId, deptName, pricePerDay } = req.body;
-        const department = await prisma.departments.findUnique({ where: { id: deptId } });
+        const { id } = req.params;
+        const { deptName, pricePerDay } = req.body;
+        const department = await prisma.departments.findUnique({ where: { id } });
         if (!department) {
             return sendEmpty(res, 'department not foun');
         };
@@ -48,7 +49,7 @@ export const updateDepartment = async (req, res) => {
             };
         };
         const updateDepartment = await prisma.departments.update({
-            where: { id: deptId },
+            where: { id },
             data: { deptName, pricePerDay }
         });
         sendSuccess(res, 'updateDepartment successfully', updateDepartment);
@@ -58,14 +59,14 @@ export const updateDepartment = async (req, res) => {
 }
 
 //delete department
-export const deleteDepartment = async(req, res) => {
+export const deleteDepartment = async (req, res) => {
     try {
-        const { id } = req.body;
-        const department = await prisma.departments.findUnique({ where: {id} });
-        if(!department) {
+        const { id } = req.params;
+        const department = await prisma.departments.findUnique({ where: { id } });
+        if (!department) {
             return sendEmpty(res, 'department not foun')
         };
-        const deleteDepartment = await prisma.departments.delete({ where: {id} });
+        const deleteDepartment = await prisma.departments.delete({ where: { id } });
         sendDelete(res, 'delete department successfully');
     } catch (error) {
         sendError(res, error);

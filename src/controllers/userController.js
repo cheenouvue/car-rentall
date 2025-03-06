@@ -2,6 +2,8 @@ import { validationResult } from "express-validator";
 import prisma from "../config/config.js";
 import { sendError, sendSuccess, sendValidator } from "../service/reponseHandler.js";
 import bcrypt from "bcryptjs";
+import path from 'path';
+import fs from 'fs';
 
 //getAllUser
 export const getAllUsers = async (req, res) => {
@@ -16,8 +18,8 @@ export const getAllUsers = async (req, res) => {
 //getOneUser
 export const getOneUser = async (req, res) => {
     try {
-        const { userId } = req.body;
-        const user = await prisma.users.findUnique({ where: { id: userId } });
+        const { id } = req.params;
+        const user = await prisma.users.findUnique({ where: { id } });
         if (!user) {
             return res.status(400).json({ message: "didn't have your userId" })
         }
@@ -43,8 +45,8 @@ export const getUserProfile = async (req, res) => {
 //update Role to Admin
 export const updateRoleAdmin = async (req, res) => {
     try {
-        const { userId } = req.body;
-        const user = await prisma.users.findUnique({ where: { id: userId } });
+        const { id } = req.params;
+        const user = await prisma.users.findUnique({ where: { id } });
         if(!user) {
             return res.status(400).json({ message: "user is empty" });
         }
@@ -61,8 +63,8 @@ export const updateRoleAdmin = async (req, res) => {
 //update Role to SuperAdmin
 export const updateRoleSuperAdmin = async (req, res) => {
     try {
-        const { userId } = req.body;
-        const user = await prisma.users.findUnique({ where: { id: userId } });
+        const { id } = req.params;
+        const user = await prisma.users.findUnique({ where: { id } });
         if (!user) {
             return res.status(400).json({ message: "user is empty" });
         }
@@ -83,10 +85,20 @@ export const updateProfile = async (req, res) => {
         return sendValidator(res, error);
     }
     try {
-        const { firstName, lastName, profile } = req.body;
+        const { firstName, lastName } = req.body;
+        const profiles = req?.files?.profile;
+         //ສ້າງ folder uploads
+         const uploadDir = path.join(path.resolve(), "uploads");
+         if (!fs.existsSync(uploadDir)) {
+           fs.mkdirSync(uploadDir, { recursive: true });
+         }
+     
+         //ເອົາໄຟສທີ່ອັດໂຫດມາບັນທືກໃນ folder uploads
+         const uploadPath = path.join(uploadDir, profiles.name);
+         await profiles.mv(uploadPath);
         const updateProfile = await prisma.users.update({
             where: { id: req.user.id },
-            data: { firstName, lastName, profile },
+            data: { firstName, lastName, profile: profiles.name },
         });
         if (!updateProfile) {
             return res.status(400).json({ message: 'your profile is empty' });
@@ -100,8 +112,8 @@ export const updateProfile = async (req, res) => {
 //delete user
 export const deleteUser = async (req, res) => {
     try {
-        const { userId } = req.body;
-        const user = await prisma.users.findUnique({ where: { id: userId } });
+        const { id } = req.params;
+        const user = await prisma.users.findUnique({ where: { id } });
         if (!user) {
             return res.status(400).json({ message: "cann't delete user by your id" });
         }
