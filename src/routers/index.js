@@ -8,6 +8,7 @@ import authRoutes from "./authRouter.js";
 import userRoutes from "./userRouter.js";
 import departmentRoutes from "./departmentRouter.js";
 import employeeRoutes from "./employeeRouter.js";
+import payment from "./payment.js";
 
 const router = Router();
 const car = "/car";
@@ -21,5 +22,6 @@ router.use(car, insurance);
 router.use(car, carType);
 router.use(car, bank);
 router.use(car, cars);
+router.use(car, payment);
 
 export default router;

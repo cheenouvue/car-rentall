@@ -139,7 +139,7 @@ model Review {
   updatedAt   DateTime @updatedAt
 }
 
-model plyment {
+model payment {
   id        String   @id @default(uuid())
   price     Float
   image     String
@@ -193,7 +193,7 @@ model Rental {
   bank          Bank      @relation(fields: [bankId], references: [id])
   Employees     Employees @relation(fields: [employeesId], references: [id])
   review        Review?   @relation
-  plyment       plyment?  @relation
+  payment       payment?  @relation
 
   creatDat  DateTime @default(now())
   updateDat DateTime @updatedAt
