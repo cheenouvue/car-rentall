@@ -136,23 +136,13 @@ CREATE TABLE `payment` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Penalty` (
-    `id` VARCHAR(191) NOT NULL,
-    `image` VARCHAR(191) NOT NULL,
-    `detail` VARCHAR(191) NOT NULL,
-    `price` DOUBLE NOT NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
-    `repairId` VARCHAR(191) NOT NULL,
-
-    UNIQUE INDEX `Penalty_repairId_key`(`repairId`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
 CREATE TABLE `Repair` (
     `id` VARCHAR(191) NOT NULL,
+    `penaltyImg` VARCHAR(191) NOT NULL,
+    `penaltyTail` VARCHAR(191) NOT NULL,
+    `penaltyPrice` DOUBLE NOT NULL,
     `image` VARCHAR(191) NOT NULL,
+    `detail` VARCHAR(191) NOT NULL,
     `pay` DOUBLE NOT NULL,
     `price_total` DOUBLE NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -198,9 +188,6 @@ ALTER TABLE `Review` ADD CONSTRAINT `Review_usersId_fkey` FOREIGN KEY (`usersId`
 
 -- AddForeignKey
 ALTER TABLE `payment` ADD CONSTRAINT `payment_rentalId_fkey` FOREIGN KEY (`rentalId`) REFERENCES `Rental`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Penalty` ADD CONSTRAINT `Penalty_repairId_fkey` FOREIGN KEY (`repairId`) REFERENCES `Repair`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Rental` ADD CONSTRAINT `Rental_usersId_fkey` FOREIGN KEY (`usersId`) REFERENCES `Users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
