@@ -2,35 +2,52 @@ import path from "path";
 import fs from "fs";
 import mime from "mime-types";
 
-// ฟังก์ชันอัปโหลดไฟล์
+// function uploadlFile
 export const uploadFile = async (file, folder = "uploads") => {
   try {
     if (!file) {
-      throw new Error("ไม่มีไฟล์ที่อัปโหลด");
+      throw new Error("No file Upload");
     }
 
-    // ตรวจสอบประเภทไฟล์
+    // check type of file
     const fileType = mime.lookup(file.name);
     if (!fileType || !fileType.startsWith("image/")) {
-      throw new Error("อัปโหลดได้เฉพาะไฟล์รูปภาพเท่านั้น (JPG, PNG, GIF, WebP ฯลฯ)");
+      throw new Error("Only image(JPG, PNG, GIF, WebP ฯลฯ)");
     }
 
-    // สร้างโฟลเดอร์อัปโหลดถ้ายังไม่มี
+    // create folder 
     const uploadDir = path.join(process.cwd(), folder);
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    // ตั้งชื่อไฟล์ใหม่
+    // new file name
     const fileExt = path.extname(file.name);
     const fileName = `${Date.now()}${fileExt}`;
     const filePath = path.join(uploadDir, fileName);
 
-    // ย้ายไฟล์ไปที่โฟลเดอร์
+    // move file to folder
     await file.mv(filePath);
 
     return fileName;
   } catch (error) {
-    throw new Error("อัปโหลดไฟล์ล้มเหลว: " + error.message);
+    throw new Error("Error Upload File: " + error.message);
+  }
+};
+
+//removefile
+export const removeFile = (fileName, folder = "uploads") => {
+  try {
+    const filePath = path.join(process.cwd(), folder, fileName);
+
+    // check file
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath); // deletefile
+      console.log(`Delete File : ${fileName} `);
+    } else {
+      console.log(`Not Found: ${fileName} `);
+    }
+  } catch (error) {
+    console.error("Error Delete File: " + error.message);
   }
 };

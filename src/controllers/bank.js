@@ -1,6 +1,10 @@
 import prisma from "../config/config.js";
-import { sendError, sendSuccess } from "../service/reponseHandler.js";
-import { uploadFile } from "../service/uploadService.js";
+import {
+  sendEmpty,
+  sendError,
+  sendSuccess,
+} from "../service/reponseHandler.js";
+import { removeFile, uploadFile } from "../service/uploadService.js";
 import fs from "fs";
 import path from "path";
 export const create = async (req, res) => {
@@ -46,6 +50,9 @@ export const listID = async (req, res) => {
         id: id,
       },
     });
+    if (!bank) {
+      return sendEmpty(res, "NO Image");
+    }
     sendSuccess(res, "Success", bank);
   } catch (erro) {
     console.log(erro);
@@ -57,16 +64,23 @@ export const listID = async (req, res) => {
 export const update = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, icon } = req.body;
+    const { name } = req.body;
+    const icon = req.files?.icon;
+    const image = req.files?.image;
+    const bankCheck = await prisma.bank.findUnique({ where: { id: id } });
+    if (!bankCheck) return res.status(400).json({ message: "NO Date" });
+
+    const iconFileName = icon ? await uploadFile(icon) : bankCheck.icon;
+    const imageFileName = image ? await uploadFile(image) : bankCheck.image;
+
+    if (icon && bankCheck.icon) removeFile(bankCheck.icon);
+    if (image && bankCheck.image) removeFile(bankCheck.image);
+
     const bank = await prisma.bank.update({
-      where: {
-        bank_id: id,
-      },
-      data: {
-        name: name,
-        icon: icon,
-      },
+      where: { id: id },
+      data: { name, icon: iconFileName, image: imageFileName },
     });
+
     sendSuccess(res, "Success", bank);
   } catch (erro) {
     console.log(erro);
@@ -78,13 +92,17 @@ export const update = async (req, res) => {
 export const remove = async (req, res) => {
   try {
     const { id } = req.params;
+    const bankCheck = await prisma.bank.findUnique({ where: { id: id } });
+    if (!bankCheck) return sendEmpty(res, "NO Date");
+
+    if (bankCheck.icon) removeFile(bankCheck.icon);
+    if (bankCheck.image) removeFile(bankCheck.image);
     const bank = await prisma.bank.delete({
       where: {
-        bank_id: id,
+        id: id,
       },
     });
-
-    sendSuccess(res, "Success", bank);
+    sendSuccess(res, "Success Delete", bank);
   } catch (erro) {
     console.log(erro);
     sendError(res, "Delete bank Error");

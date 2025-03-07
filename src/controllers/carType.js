@@ -1,14 +1,21 @@
 import prisma from "../config/config.js";
-import { sendError, sendSuccess } from "../service/reponseHandler.js";
+import {
+  sendEmpty,
+  sendError,
+  sendSuccess,
+} from "../service/reponseHandler.js";
+import { removeFile, uploadFile } from "../service/uploadService.js";
 
 // create
 export const create = async (req, res) => {
   try {
-    const { name, icon } = req.body;
+    const { name } = req.body;
+    const icon = req.files?.icon;
+    const iconFileName = icon ? await uploadFile(icon) : null;
     const carType = await prisma.carType.create({
       data: {
         name: name,
-        icon: icon,
+        icon: iconFileName,
       },
     });
     sendSuccess(res, "Success Create", carType);
@@ -33,11 +40,13 @@ export const list = async (req, res) => {
 export const listID = async (req, res) => {
   try {
     const { id } = req.params;
+
     const carType = await prisma.carType.findUnique({
       where: {
         car_type_id: id,
       },
     });
+    if (!carType) return sendEmpty(res, "No image");
     sendSuccess(res, "Success", carType);
   } catch (erro) {
     console.log(erro);
@@ -49,14 +58,24 @@ export const listID = async (req, res) => {
 export const update = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, icon } = req.body;
+    const { name } = req.body;
+    const icon = req.files?.icon;
+    const check = await prisma.carType.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (!check) return sendEmpty(res, "NO Date");
+
+    const iconFileName = icon ? await uploadFile(icon) : check.icon;
+    if (icon && check.icon) removeFile(check.icon);
     const carType = await prisma.carType.update({
       where: {
-        car_type_id: id,
+        id: id,
       },
       data: {
         name: name,
-        icon: icon,
+        icon: iconFileName,
       },
     });
     sendSuccess(res, "Success", carType);
@@ -70,13 +89,20 @@ export const update = async (req, res) => {
 export const remove = async (req, res) => {
   try {
     const { id } = req.params;
+    const check = await prisma.carType.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (!check) return sendEmpty(res, "NO Date");
+    if (check.icon) removeFile(check.icon);
     const carType = await prisma.carType.delete({
       where: {
-        car_type_id: id,
+        id: id,
       },
     });
 
-    sendSuccess(res, "Success", carType);
+    sendSuccess(res, "Success Delete", carType);
   } catch (erro) {
     console.log(erro);
     sendError(res, "Delete carType Error");

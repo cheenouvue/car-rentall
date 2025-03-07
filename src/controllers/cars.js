@@ -1,12 +1,16 @@
 import prisma from "../config/config.js";
-import { sendError, sendSuccess } from "../service/reponseHandler.js";
+import {
+  sendEmpty,
+  sendError,
+  sendSuccess,
+} from "../service/reponseHandler.js";
+import { removeFile, uploadFile } from "../service/uploadService.js";
 
 //create
 export const create = async (req, res) => {
   try {
     const {
       name,
-      image,
       year,
       plate_city,
       plate_text,
@@ -20,10 +24,16 @@ export const create = async (req, res) => {
       carTypeId,
       insuranceId,
     } = req.body;
+    const image = req.files?.image;
+    const parsedPrice = parseFloat(price);
+    if (isNaN(parsedPrice)) {
+      return res.status(400).json({ message: "Invalid price format" });
+    }
+    const imageFileName = image ? await uploadFile(image) : null;
     const car = await prisma.car.create({
       data: {
         name: name,
-        image: image,
+        image: imageFileName,
         year: year,
         plate_city: plate_city,
         plate_text: plate_text,
@@ -33,7 +43,7 @@ export const create = async (req, res) => {
         car_gear: car_gear,
         color: color,
         status: status,
-        price: price,
+        price: parsedPrice,
         carTypeId: carTypeId,
         insuranceId: insuranceId,
       },
@@ -57,12 +67,6 @@ export const list = async (req, res) => {
           },
         },
         insurance: {
-          select: {
-            name: true,
-            icon: true,
-          },
-        },
-        bank: {
           select: {
             name: true,
             icon: true,
@@ -100,7 +104,7 @@ export const listBy = async (req, res) => {
   }
 };
 
-//list by price
+// List cars by price range
 export const listPrice = async (req, res) => {
   try {
     const { min_price, max_price } = req.body;
@@ -112,10 +116,10 @@ export const listPrice = async (req, res) => {
       whereCondition.price = {};
 
       if (min_price !== undefined) {
-        whereCondition.price.gte = min_price; // Greater than or equal to min_price
+        whereCondition.price.gte = parseFloat(min_price); // Convert to float
       }
       if (max_price !== undefined) {
-        whereCondition.price.lte = max_price; // Less than or equal to max_price
+        whereCondition.price.lte = parseFloat(max_price); // Convert to float
       }
     }
 
@@ -123,6 +127,11 @@ export const listPrice = async (req, res) => {
     const cars = await prisma.car.findMany({
       where: whereCondition,
     });
+
+    // Check if no cars were found
+    if (cars.length === 0) {
+      return sendEmpty(res, "No car");
+    }
 
     sendSuccess(res, "Success", cars);
   } catch (err) {
@@ -136,7 +145,6 @@ export const update = async (req, res) => {
     const { id } = req.params;
     const {
       name,
-      image,
       year,
       plate_city,
       plate_text,
@@ -150,13 +158,20 @@ export const update = async (req, res) => {
       carTypeId,
       insuranceId,
     } = req.body;
+    const image = req.files?.image;
+    const check = await prisma.car.findUnique({
+      id: id,
+    });
+    if (!check) return sendEmpty(res, "Not Date");
+    const imageFileName = image ? await uploadFile(image) : check.image;
+    if (image && imageFileName) removeFile(check.image);
     const car = await prisma.car.update({
       where: {
-        car_id: id,
+        id: id,
       },
       data: {
         name: name,
-        image: image,
+        image: imageFileName,
         year: year,
         plate_city: plate_city,
         plate_text: plate_text,
@@ -182,9 +197,16 @@ export const update = async (req, res) => {
 export const remove = async (req, res) => {
   try {
     const { id } = req.params;
+    const check = await prisma.car.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (!check) return sendEmpty(res, "NO Data");
+    if (check.image) removeFile(check.image);
     const car = await prisma.car.delete({
       where: {
-        car_id: id,
+        id: id,
       },
     });
     sendSuccess(res, "Success", car);

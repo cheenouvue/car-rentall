@@ -1,16 +1,20 @@
 import prisma from "../config/config.js";
 import {
   sendCreated,
+  sendEmpty,
   sendError,
   sendSuccess,
 } from "../service/reponseHandler.js";
+import { removeFile, uploadFile } from "../service/uploadService.js";
 export const create = async (req, res) => {
   try {
-    const { name, icon } = await req.body;
+    const { name } = req.body;
+    const icon = req.files?.icon;
+    const iconFileName = icon ? await uploadFile(icon) : null;
     const insurance = await prisma.insurance.create({
       data: {
         name: name,
-        icon: icon,
+        icon: iconFileName,
       },
     });
     sendCreated(res, " SuccessFull", insurance);
@@ -23,7 +27,7 @@ export const create = async (req, res) => {
 export const list = async (req, res) => {
   try {
     const insurance = await prisma.insurance.findMany({});
-    sendSuccess(res, "success", insurance);
+    sendCreated(res, " SuccessFull", insurance);
   } catch (erro) {
     console.log(erro);
     res.status(500).json({ message: "List insurance Error " });
@@ -34,10 +38,12 @@ export const listID = async (req, res) => {
     const { id } = req.params;
     const insurance = await prisma.insurance.findUnique({
       where: {
-        insurance_id: id,
+        id: id,
       },
     });
-    sendSuccess(res, "success", insurance);
+    insurance
+      ? sendSuccess(res, "success", insurance)
+      : sendEmpty(res, "NO Date");
   } catch (erro) {
     console.log(erro);
     res.status(500).json({ message: "ListID insurance Error " });
@@ -46,14 +52,21 @@ export const listID = async (req, res) => {
 export const update = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, icon } = req.body;
+    const name = req.body;
+    const icon = req.files?.icon;
+    const check = await prisma.insurance.findUnique({
+      where: { id: id },
+    });
+    if (!check) return sendEmpty(res, "NO Date");
+    const iconFileName = icon ? await uploadFile(icon) : check.icon;
+    if (icon && check.icon) removeFile(check.icon);
     const insurance = await prisma.insurance.update({
       where: {
-        insurance_id: id,
+        id: id,
       },
       data: {
         name: name,
-        icon: icon,
+        icon: iconFileName,
       },
     });
     sendSuccess(res, "Success Update ", insurance);
@@ -65,9 +78,14 @@ export const update = async (req, res) => {
 export const remove = async (req, res) => {
   try {
     const { id } = req.params;
+    const check = await prisma.insurance.findUnique({
+      where: { id: id },
+    });
+    if (!check) return sendEmpty(res, "NO Date");
+    if (check.icon) removeFile(bankCheck.icon);
     const insurance = await prisma.insurance.delete({
       where: {
-        insurance_id: id,
+        id: id,
       },
     });
     sendSuccess(res, "Success Delete", insurance);
