@@ -1,7 +1,7 @@
 /*
   Warnings:
 
-  - You are about to drop the column `price_total` on the `repair` table. All the data in the column will be lost.
+  - Added the required column `image` to the `Car` table without a default value. This is not possible if the table is not empty.
 
 */
 -- DropIndex
@@ -26,10 +26,13 @@ DROP INDEX `Rental_employeesId_fkey` ON `rental`;
 DROP INDEX `Rental_usersId_fkey` ON `rental`;
 
 -- DropIndex
-DROP INDEX `Review_usersId_fkey` ON `review`;
+DROP INDEX `Review_carId_fkey` ON `review`;
+
+-- DropIndex
+DROP INDEX `Review_emplyId_fkey` ON `review`;
 
 -- AlterTable
-ALTER TABLE `repair` DROP COLUMN `price_total`;
+ALTER TABLE `car` ADD COLUMN `image` VARCHAR(191) NOT NULL;
 
 -- AddForeignKey
 ALTER TABLE `Employees` ADD CONSTRAINT `Employees_dept_id_fkey` FOREIGN KEY (`dept_id`) REFERENCES `Departments`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -44,7 +47,10 @@ ALTER TABLE `Car` ADD CONSTRAINT `Car_insuranceId_fkey` FOREIGN KEY (`insuranceI
 ALTER TABLE `Review` ADD CONSTRAINT `Review_rentalId_fkey` FOREIGN KEY (`rentalId`) REFERENCES `Rental`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Review` ADD CONSTRAINT `Review_usersId_fkey` FOREIGN KEY (`usersId`) REFERENCES `Users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Review` ADD CONSTRAINT `Review_emplyId_fkey` FOREIGN KEY (`emplyId`) REFERENCES `Employees`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Review` ADD CONSTRAINT `Review_carId_fkey` FOREIGN KEY (`carId`) REFERENCES `Car`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `payment` ADD CONSTRAINT `payment_rentalId_fkey` FOREIGN KEY (`rentalId`) REFERENCES `Rental`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

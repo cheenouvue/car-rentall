@@ -88,7 +88,6 @@ CREATE TABLE `Bank` (
 CREATE TABLE `Car` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
-    `image` VARCHAR(191) NOT NULL,
     `year` VARCHAR(191) NOT NULL,
     `plate_city` VARCHAR(191) NOT NULL,
     `plate_text` VARCHAR(191) NOT NULL,
@@ -110,11 +109,12 @@ CREATE TABLE `Car` (
 -- CreateTable
 CREATE TABLE `Review` (
     `id` VARCHAR(191) NOT NULL,
-    `commen` VARCHAR(191) NOT NULL,
-    `car_point` INTEGER NOT NULL,
-    `emply_point` INTEGER NOT NULL,
+    `comment` VARCHAR(191) NOT NULL,
+    `carPoint` INTEGER NOT NULL,
+    `emplyPoint` INTEGER NOT NULL,
+    `emplyId` VARCHAR(191) NOT NULL,
+    `carId` VARCHAR(191) NOT NULL,
     `rentalId` VARCHAR(191) NOT NULL,
-    `usersId` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -144,7 +144,6 @@ CREATE TABLE `Repair` (
     `image` VARCHAR(191) NOT NULL,
     `detail` VARCHAR(191) NOT NULL,
     `pay` DOUBLE NOT NULL,
-    `price_total` DOUBLE NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -184,7 +183,10 @@ ALTER TABLE `Car` ADD CONSTRAINT `Car_insuranceId_fkey` FOREIGN KEY (`insuranceI
 ALTER TABLE `Review` ADD CONSTRAINT `Review_rentalId_fkey` FOREIGN KEY (`rentalId`) REFERENCES `Rental`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Review` ADD CONSTRAINT `Review_usersId_fkey` FOREIGN KEY (`usersId`) REFERENCES `Users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Review` ADD CONSTRAINT `Review_emplyId_fkey` FOREIGN KEY (`emplyId`) REFERENCES `Employees`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Review` ADD CONSTRAINT `Review_carId_fkey` FOREIGN KEY (`carId`) REFERENCES `Car`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `payment` ADD CONSTRAINT `payment_rentalId_fkey` FOREIGN KEY (`rentalId`) REFERENCES `Rental`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

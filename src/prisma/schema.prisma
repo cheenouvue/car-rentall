@@ -22,7 +22,6 @@ model Users {
   password  String
   profile   String?
   car       Rental[]
-  review    Review[]
   statu     Statu    @default(normal)
   role      Role     @default(user)
   createAt  DateTime @default(now())
@@ -30,14 +29,12 @@ model Users {
 }
 
 model Employees {
-  id        String @id @default(uuid())
-  dept_id   String
-  firstName String
-  lastName  String
-  email     String @unique
-
-  phone Int @unique
-
+  id            String      @id @default(uuid())
+  dept_id       String
+  firstName     String
+  lastName      String
+  email         String      @unique
+  phone         Int         @unique
   village       String
   distrit       String
   provinced     String
@@ -48,6 +45,7 @@ model Employees {
   updateAt      DateTime    @updatedAt
   department    Departments @relation(fields: [dept_id], references: [id])
   rental        Rental[]
+  review        Review[]
 }
 
 model Departments {
@@ -117,26 +115,29 @@ model Car {
   color        String
   status       String
   price        Float
-  carType      CarType   @relation(fields: [carTypeId], references: [id])
   carTypeId    String
-  insurance    Insurance @relation(fields: [insuranceId], references: [id])
   insuranceId  String
+  carType      CarType   @relation(fields: [carTypeId], references: [id])
+  insurance    Insurance @relation(fields: [insuranceId], references: [id])
   rental       Rental[]
+  review       Review[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
 
 model Review {
-  id          String   @id @default(uuid())
-  commen      String
-  car_point   Int
-  emply_point Int
-  rentalId    String   @unique
-  rental      Rental   @relation(fields: [rentalId], references: [id], onDelete: Cascade)
-  usersId     String
-  users       Users    @relation(fields: [usersId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String    @id @default(uuid())
+  comment    String
+  carPoint   Int
+  emplyPoint Int
+  emplyId    String
+  carId      String
+  rentalId   String    @unique
+  rental     Rental    @relation(fields: [rentalId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  emply      Employees @relation(fields: [emplyId], references: [id])
+  car        Car       @relation(fields: [carId], references: [id])
 }
 
 model payment {
@@ -172,6 +173,17 @@ model Repair {
   updatedAt    DateTime @updatedAt
 }
 
+// model Coupon {
+//   id         String   @id @default(uuid())
+//   name       String
+//   discount   Float
+//   startDate DateTime
+//   endDate   DateTime
+//   rental     Rental[]
+//   createAdt  DateTime @default(now())
+//   updateAdt  DateTime @updatedAt
+// }
+
 model Rental {
   id String @id @default(uuid())
   // promotion_id   String   @unique
@@ -181,10 +193,11 @@ model Rental {
   first_name    String
   last_name     String
   phone         Int
-  passport      String
-  identity_card String
+  passport      String //image
+  identity_card String //image
+  dri_icenes    String //image
+  pay_image     String //image
   booking_pay   Float
-  pay_image     String
   usersId       String
   carId         String
   employeesId   String

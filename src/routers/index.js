@@ -10,6 +10,7 @@ import departmentRoutes from "./departmentRouter.js";
 import employeeRoutes from "./employeeRouter.js";
 import payment from "./payment.js";
 import repair from "./repair.js";
+import review from "./review.js";
 
 const router = Router();
 const car = "/car";
@@ -25,5 +26,6 @@ router.use(car, bank);
 router.use(car, cars);
 router.use(car, payment);
 router.use(car, repair);
+router.use(car, review);
 
 export default router;
