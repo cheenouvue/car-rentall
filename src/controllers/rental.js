@@ -19,7 +19,7 @@ export const create = async (req, res) => {
       employeesId,
       bankId,
     } = req.body;
-    const passport = req.files?.passport;
+    const passport = req.files.passport;
     const identity_card = req.files?.identity_card;
     const dri_icenes = req.files?.dri_icenes;
     const pay_image = req.files?.pay_image;
@@ -120,7 +120,7 @@ export const update = async (req, res) => {
 
     // Get the existing rental data
     const check = await prisma.rental.findUnique({
-      where: { id: id }, // Ensure `id` is parsed as an integer
+      where: { id: parseInt(id) }, // Ensure `id` is parsed as an integer
     });
 
     if (!check) {
@@ -149,7 +149,7 @@ export const update = async (req, res) => {
 
     // Update the rental data in the database
     const rental = await prisma.rental.update({
-      where: { id: id }, // Ensure `id` is parsed as an integer
+      where: { id: parseInt(id) }, // Ensure `id` is parsed as an integer
       data: {
         first_name,
         last_name,

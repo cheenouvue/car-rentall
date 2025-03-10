@@ -212,3 +212,9 @@ model Rental {
   creatDat  DateTime @default(now())
   updateDat DateTime @updatedAt
 }
+
+model Image {
+  id            String @id @default(uuid()) // Unique ID for the image
+  name          String // Name of the image
+  identity_card String // Path or filename of the identity card image
+}

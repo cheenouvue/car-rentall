@@ -15,7 +15,7 @@ export const uploadFile = async (file, folder = "uploads") => {
       throw new Error("Only image(JPG, PNG, GIF, WebP ฯลฯ)");
     }
 
-    // create folder 
+    // create folder
     const uploadDir = path.join(process.cwd(), folder);
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
