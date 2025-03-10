@@ -1,6 +1,6 @@
 import prisma from "../config/config.js";
 import { validationResult } from "express-validator";
-import { sendCreated, sendEmpty, sendError, sendExsited, sendSuccess, sendUpdate, sendValidator } from "../service/reponseHandler.js";
+import { sendCreated, sendDelete, sendEmpty, sendError, sendExsited, sendSuccess, sendUpdate, sendValidator } from "../service/reponseHandler.js";
 import path from "path";
 import { send } from "process";
 import exp from "constants";
@@ -14,7 +14,7 @@ export const addEmployee = async (req, res) => {
     try {
         const { dept_id, firstName, lastName, email, phone, village, distrit, provinced, salary, birthday } = req.body;
         const natinalIdCard = req.files?.natinal_id_card;
-        const uploadDir = path.join(path.resolve(), 'uploads');
+        const uploadDir = path.join(path.resolve(), 'src/uploads/images');
         const uploadPath = path.join(uploadDir, natinalIdCard.name);
         await natinalIdCard.mv(uploadPath);
         const department = await prisma.departments.findUnique({ where: { id: dept_id } });
@@ -89,7 +89,7 @@ export const updateSalary = async (req, res) => {
         if (!employee) {
             return sendEmpty(res, 'employee not found');
         }
-        const updateSalary = await prisma.employees.update({
+        await prisma.employees.update({
             where: { id },
             data: { salary: parseFloat(salary) }
         });
@@ -119,7 +119,7 @@ export const changePhone = async (req, res) => {
                 return sendExsited(res, 'phone is exsited');
             }
         }
-        const changePhone = await prisma.employees.update({
+        await prisma.employees.update({
             where: { id },
             data: { phone: phoneInt }
         });
@@ -142,11 +142,66 @@ export const changeDepartment = async (req, res) => {
         if (!department) {
             return sendEmpty(res, 'department not found');
         }
-        const changeDepartment = await prisma.employees.update({
+        await prisma.employees.update({
             where: { id },
             data: { dept_id }
         });
         sendUpdate(res, 'change department for employee successfully');
+    } catch (error) {
+        sendError(res, error);
+    }
+}
+
+//update personal infornation
+export const updatePersonalInfo = async (req, res) => {
+    const error = validationResult(req);
+    if (!error.isEmpty()) {
+        return sendValidator(res, error);
+    }
+    try {
+        const { id } = req.params;
+        const { firstName, lastName, email, village, distrit, provinced } = req.body;
+        const natinal_id_card = req?.files?.natinal_id_card;
+        const uploadDir = path.join(path.resolve(), 'uploads');
+        const uploadPath = path.join(uploadDir, natinal_id_card.name);
+        await natinal_id_card.mv(uploadPath);
+
+        const employee = await prisma.employees.findUnique({ where: { id } });
+        if (!employee) {
+            return sendEmpty(res, 'employee not found');
+        }
+        if (employee.email !== email) {
+            const emailExsited = await prisma.employees.findUnique({ where: { email } });
+            if (emailExsited) {
+                return sendExsited(res, 'email is exsited');
+            }
+        }
+        if (employee.natinalIdCard !== natinal_id_card.name) {
+            const natinalIdCardExsited = await prisma.employees.findUnique({ where: { natinalIdCard: natinal_id_card.name } });
+            if (natinalIdCardExsited) {
+                return sendExsited(res, 'natinal_id_card is exsited');
+            }
+        }
+        await prisma.employees.update({
+            where: { id },
+            data: { firstName, lastName, email, village, distrit, provinced, natinalIdCard: natinal_id_card.name }
+        });
+        sendUpdate(res, 'update personal infornation successfully');
+    } catch (error) {
+        sendError(res, error);
+    }
+}
+
+//delete employee
+export const deleteEmployee = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const employee = await prisma.employees.findUnique({ where: { id } });
+        if (!employee) {
+            return sendEmpty(res, 'employee not found');
+        }
+        await prisma.employees.delete({ where: { id } });
+        sendDelete(res, 'delete employee successfully');
     } catch (error) {
         sendError(res, error);
     }

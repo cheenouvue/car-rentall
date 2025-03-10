@@ -15,15 +15,17 @@ datasource db {
 
 //model
 model Users {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   firstName String
   lastName  String
-  email     String   @unique
+  email     String    @unique
   password  String
   profile   String?
-  role      Role     @default(user)
-  createAt  DateTime @default(now())
-  updateAt  DateTime @updatedAt
+  role      Role      @default(user)
+  otp       Json?
+  createAt  DateTime  @default(now())
+  updateAt  DateTime  @updatedAt
+  coupon    Coupons[]
 }
 
 model Employees {
@@ -51,6 +53,46 @@ model Departments {
   createAt    DateTime    @default(now())
   updateAt    DateTime    @updatedAt
   Employees   Employees[]
+}
+
+model Status {
+  id          String   @id @default(uuid())
+  statu       Int      @unique
+  statu_user  String   @unique
+  statu_admin String   @unique
+  statu_car   String   @unique
+  icon_statu  String   @unique
+  createAt    DateTime @default(now())
+  updateAt    DateTime @updatedAt
+}
+
+model Promotions {
+  id              String          @id @default(uuid())
+  titel           String
+  description     String
+  image           String
+  discount_type   Discount_Type
+  discount        Float
+  min_rent_amount Float
+  status          Statu_Promotion @default(active)
+  start_date      DateTime
+  end_date        DateTime
+  createAt        DateTime        @default(now())
+  updateAt        DateTime        @updatedAt
+}
+
+model Coupons {
+  id          String          @id @default(uuid())
+  user_id     String
+  code        String          @unique
+  description String
+  discount    Float
+  status      Statu_Promotion @default(active)
+  start_date  DateTime
+  end_date    DateTime
+  createAt    DateTime        @default(now())
+  updateAt    DateTime        @updatedAt
+  user        Users           @relation(fields: [user_id], references: [id])
 }
 
 // model CarType {
@@ -110,7 +152,13 @@ enum Role {
   superAdmin
 }
 
-enum Statu {
-  ban
-  normal
+enum Statu_Promotion {
+  active
+  inactive
+  expired
+}
+
+enum Discount_Type {
+  percent
+  currency
 }

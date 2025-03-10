@@ -1,5 +1,5 @@
 import { authCheckToken, authorizeRole } from "../middleware/authMiddleware.js";
-import { getAllUsers, updateRoleAdmin, updateRoleSuperAdmin, getOneUser, getUserProfile, updateProfile, deleteUser, changePassword } from "../controllers/userController.js";
+import { getAllUsers, updateRoleAdmin, updateRoleSuperAdmin, getOneUser, getUserProfile, updateProfile, deleteUser, changePassword, sendOTPEmailController, verifyOTPAndDeleteAccountController } from "../controllers/userController.js";
 import { Router } from "express";
 import { profileValidation, passworkValidation } from "../middleware/validatoins.js";
 
@@ -16,4 +16,10 @@ router.put('/updateRoleSuperAdmin/:id', authCheckToken, authorizeRole([sa]), upd
 router.put('/updateProfile', authCheckToken, profileValidation, updateProfile);
 router.post('/changePassword', authCheckToken, passworkValidation, changePassword);
 router.delete('/deleteUser/:id', authCheckToken, authorizeRole([a, sa]), deleteUser);
+
+//send otp
+router.post('/:user_id/send-otp/:email', sendOTPEmailController);
+
+//check otp
+router.post('/:user_id/verfy-otp/:otp', verifyOTPAndDeleteAccountController);
 export default router;

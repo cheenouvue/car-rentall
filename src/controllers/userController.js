@@ -1,9 +1,10 @@
 import { validationResult } from "express-validator";
 import prisma from "../config/config.js";
-import { sendError, sendSuccess, sendValidator } from "../service/reponseHandler.js";
+import { sendEmpty, sendError, sendSuccess, sendValidator } from "../service/reponseHandler.js";
 import bcrypt from "bcryptjs";
 import path from 'path';
 import fs from 'fs';
+import { generateOTP, sendOTPEmail } from "../utils/otpMail.js";
 
 //getAllUser
 export const getAllUsers = async (req, res) => {
@@ -47,7 +48,7 @@ export const updateRoleAdmin = async (req, res) => {
     try {
         const { id } = req.params;
         const user = await prisma.users.findUnique({ where: { id } });
-        if(!user) {
+        if (!user) {
             return res.status(400).json({ message: "user is empty" });
         }
         const roleAdmin = await prisma.users.update({
@@ -87,15 +88,15 @@ export const updateProfile = async (req, res) => {
     try {
         const { firstName, lastName } = req.body;
         const profiles = req?.files?.profile;
-         //ສ້າງ folder uploads
-         const uploadDir = path.join(path.resolve(), "uploads");
-         if (!fs.existsSync(uploadDir)) {
-           fs.mkdirSync(uploadDir, { recursive: true });
-         }
-     
-         //ເອົາໄຟສທີ່ອັດໂຫດມາບັນທືກໃນ folder uploads
-         const uploadPath = path.join(uploadDir, profiles.name);
-         await profiles.mv(uploadPath);
+        //ສ້າງ folder uploads
+        const uploadDir = path.join(path.resolve(), 'src/uploads/images');
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+
+        //ເອົາໄຟສທີ່ອັດໂຫດມາບັນທືກໃນ folder uploads
+        const uploadPath = path.join(uploadDir, profiles.name);
+        await profiles.mv(uploadPath);
         const updateProfile = await prisma.users.update({
             where: { id: req.user.id },
             data: { firstName, lastName, profile: profiles.name },
@@ -125,30 +126,89 @@ export const deleteUser = async (req, res) => {
 }
 
 //change password
-export const changePassword = async(req, res) => {
+export const changePassword = async (req, res) => {
     const error = validationResult(req);
-    if(!error.isEmpty()) {
+    if (!error.isEmpty()) {
         return sendValidator(res, error);
     }
     try {
         const { oldPassword, newPassword } = req.body;
-        const user = await prisma.users.findUnique({ where: {id: req.user.id} });
-        if(!user) {
+        const user = await prisma.users.findUnique({ where: { id: req.user.id } });
+        if (!user) {
             return res.status(400).json({ message: 'user not foun' });
         }
         const isMatch = await bcrypt.compare(oldPassword, user.password);
-        if(!isMatch) {
+        if (!isMatch) {
             return res.status(400).json({ message: 'old password not ture' });
         }
         const salt = await bcrypt.genSalt(10);
         const hashPassword = await bcrypt.hash(newPassword, salt);
 
         const changePassword = await prisma.users.update({
-            where: {id: user.id},
+            where: { id: user.id },
             data: { password: hashPassword }
         });
         sendSuccess(res, 'change password successfully', changePassword);
     } catch (error) {
         sendError(res, message);
+    }
+}
+
+//delete otp
+const deleteOtpUser = async (user_id) => {
+    await prisma.users.update({
+        where: { id: user_id },
+        data: { otp: {} }
+    });
+}
+
+//create opt
+export const sendOTPEmailController = async (req, res) => {
+    try {
+        const { user_id, email } = req.params;
+        const user = await prisma.users.findUnique({ where: { id: user_id } });
+        if (!user) {
+            return sendEmpty(res, 'user not found');
+        }
+        const generateOtp = generateOTP();
+        const otp = {
+            code: generateOtp,
+            expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+        }
+        await prisma.users.update({
+            where: { id: user_id },
+            data: { otp: otp }
+        });
+
+        await sendOTPEmail(email, generateOtp);
+
+        res.status(200).json({ message: 'OPT sent successfully' });
+    } catch (error) {
+        console.error('Error sending OTP via email:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+export const verifyOTPAndDeleteAccountController = async (req, res) => {
+    try {
+        const { user_id, otp } = req.params;
+        console.log(otp)
+        const user = await prisma.users.findUnique({ where: { id: user_id } });
+        if (!user) {
+            return sendEmpty(res, 'user not found');
+        }
+        if (!user?.otp || !user?.otp?.code || !user?.otp?.expiresAt) {
+            return sendEmpty(res, 'OTP not found or exppired');
+        }
+
+        const currentTimestampu = new Date().getTime();
+        if (otp !== user?.otp?.code || currentTimestampu > user?.otp?.expiresAt) {
+            return sendEmpty(res, 'Invalid or expired OTP');
+        }
+        await deleteOtpUser(user_id);
+        res.status(200).json({ message: 'User account deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting user account:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 }
