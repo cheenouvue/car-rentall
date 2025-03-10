@@ -150,16 +150,6 @@ model payment {
   updatedAt DateTime @updatedAt
 }
 
-// model Penalty {
-//   id        String   @id @default(uuid())
-//   image     String
-//   detail    String
-//   price     Float
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   repairId  String   @unique
-//   repair    Repair   @relation(fields: [repairId], references: [id])
-// }
 
 model Repair {
   id           String   @id @default(uuid())
@@ -173,16 +163,7 @@ model Repair {
   updatedAt    DateTime @updatedAt
 }
 
-// model Coupon {
-//   id         String   @id @default(uuid())
-//   name       String
-//   discount   Float
-//   startDate DateTime
-//   endDate   DateTime
-//   rental     Rental[]
-//   createAdt  DateTime @default(now())
-//   updateAdt  DateTime @updatedAt
-// }
+
 
 model Rental {
   id String @id @default(uuid())
@@ -213,8 +194,3 @@ model Rental {
   updateDat DateTime @updatedAt
 }
 
-model Image {
-  id            String @id @default(uuid()) // Unique ID for the image
-  name          String // Name of the image
-  identity_card String // Path or filename of the identity card image
-}
