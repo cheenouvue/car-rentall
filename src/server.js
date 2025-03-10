@@ -18,11 +18,13 @@ app.use(cookieParser());
 app.use(fileUpload());
 app.use(morgan('dev'));
 
-const uploadDir = path.join(process.cwd(), 'uploads')
-app.use('/uploads', express.static(uploadDir));
+const uploadDir = path.join(process.cwd(), "uploads");
+console.log(uploadDir)
 
-app.use('/api', router);
+app.use("/uploads", express.static(uploadDir));
+
+app.use("/api", router);
 
 app.listen(PORT, () => {
-    console.log(`server run in port ${PORT}`);
+  console.log(`server run in port ${PORT}`);
 });
